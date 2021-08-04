@@ -1,13 +1,28 @@
+import models.AuthData;
 import org.junit.jupiter.api.Test;
-import pojo.AuthData;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static specs.Specs.requestSpec;
 import static specs.Specs.responseSpec;
 
 public class ApiTests {
+
+    @Test
+    void checkUserNameByGroovy() {
+
+        given()
+                .spec(requestSpec)
+                .when()
+                .get("/users")
+                .then()
+                .spec(responseSpec)
+                .log().body()
+                .body("data.findAll{it.email}.email.flatten().",
+                        hasItem("emma.wong@reqres.in"));
+    }
 
     @Test
     void createUser() {
@@ -64,7 +79,6 @@ public class ApiTests {
                 .body("error", is("Missing password"));
     }
 
-
     @Test
     void checkLoginSuccessful() {
         given()
@@ -81,7 +95,7 @@ public class ApiTests {
     }
 
     @Test
-    void checkLoginSuccessfulWithPojo() {
+    void checkLoginSuccessfulWithModels() {
         AuthData data =
                 given()
                         .spec(requestSpec)
@@ -96,8 +110,6 @@ public class ApiTests {
                         .extract().as(AuthData.class);
 
         assertEquals("QpwL5tke4Pnpja7X4", data.getToken());
-
     }
-
 
 }
